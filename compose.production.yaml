@@ -1,0 +1,11 @@
+# Requires a TLS reverse proxy that strips/replaces X-Forwarded-Proto.
+services:
+  web:
+    environment:
+      APP_DEBUG: "0"
+      APP_ALLOWED_HOSTS: ${APP_ALLOWED_HOSTS:?Set the deployment hostname}
+      APP_CSRF_ORIGINS: ${APP_CSRF_ORIGINS:?Set the HTTPS origin}
+      APP_TRUST_PROXY: "1"
+    restart: unless-stopped
+  db:
+    restart: unless-stopped

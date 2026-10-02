@@ -1,0 +1,46 @@
+name: Verify
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    services:
+      postgres:
+        image: postgres:17@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: synthetic-ci-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U app" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    env:
+      APP_DEBUG: '1'
+      APP_SECRET_KEY: synthetic-ci-only-key-with-over-64-characters-0123456789-placeholder
+      PGHOST: localhost
+      PGDATABASE: app
+      PGUSER: app
+      PGPASSWORD: synthetic-ci-password
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: >-
+          pip install --only-binary=:all: --require-hashes -r requirements-dev.txt
+      - run: ruff check . && ruff format --check .
+      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py check
+      - run: coverage run manage.py test && coverage report
+      - run: python manage.py collectstatic --noinput
+      - run: python manage.py check --deploy --fail-level WARNING
+        env:
+          APP_DEBUG: '0'
+      - run: pip-audit --require-hashes --disable-pip -r requirements.txt

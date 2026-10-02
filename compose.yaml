@@ -1,0 +1,33 @@
+# Local development only. No public ports or fixed passwords.
+services:
+  db:
+    image: postgres:17@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD}
+    volumes: ["database:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  web:
+    build: .
+    ports: ["127.0.0.1:${APP_PORT:-8000}:8000"]
+    environment:
+      APP_DEBUG: "1"
+      APP_SECRET_KEY: ${APP_SECRET_KEY:?Set APP_SECRET_KEY}
+      PGHOST: db
+      PGDATABASE: app
+      PGUSER: app
+      PGPASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+volumes:
+  database:

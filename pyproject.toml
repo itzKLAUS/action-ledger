@@ -1,0 +1,20 @@
+[project]
+name = "action-ledger"
+version = "0.1.0"
+description = "Policy, approvals, and execution receipts for automated actions"
+requires-python = ">=3.12"
+dependencies = ["Django>=5.2,<5.3", "gunicorn>=23,<24", "psycopg[binary]>=3.2,<4", "whitenoise>=6.9,<7"]
+
+[dependency-groups]
+dev = ["ruff>=0.13,<0.14", "coverage>=7.10,<8", "pip-audit>=2.9,<3"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.coverage.run]
+source = ["core", "sdk"]
+branch = true
+omit = ["core/tests.py", "core/test_*.py", "core/migrations/*"]
