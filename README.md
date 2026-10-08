@@ -2,7 +2,7 @@
 
 <img src="docs/assets/hero.svg" alt="action-ledger architecture: request, enforcement, and recovery" width="100%">
 
-[![CI](https://github.com/itzKLAUS/action-ledger/actions/workflows/ci.yml/badge.svg)](https://github.com/itzKLAUS/action-ledger/actions/workflows/ci.yml) Â· [MIT](LICENSE) Â· [Release notes](CHANGELOG.md) Â· [Sponsor](https://github.com/sponsors/itzKLAUS)
+[![CI](https://github.com/itzKLAUS/action-ledger/actions/workflows/ci.yml/badge.svg)](https://github.com/itzKLAUS/action-ledger/actions/workflows/ci.yml) · [MIT](LICENSE) · [Release notes](CHANGELOG.md) · [Sponsor](https://github.com/sponsors/itzKLAUS)
 
 **A control room for consequential automation.**
 

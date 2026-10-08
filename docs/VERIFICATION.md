@@ -1,4 +1,4 @@
-# Verification â€” 2026-10-01
+# Verification — 2026-10-01
 
 Local checks were executed in Docker with synthetic data and no production credentials. Test containers had no external network or host credentials. PostgreSQL tests used an internal Docker network with a disposable database; previews and a pinned browser tool used a separate internal network.
 
@@ -7,7 +7,7 @@ Local checks were executed in Docker with synthetic data and no production crede
 - Ruff lint and format checks pass; migration drift check reports no changes; Django system checks report no issues.
 - Production image builds as a non-root runtime user with hash-checked dependencies. `check --deploy --fail-level WARNING` reports no issues with production settings and a synthetic long secret.
 - Production image smoke check renders login over simulated HTTPS, redirects HTTP and serves hashed CSS successfully.
-- Real SDK-to-HTTP smoke workflow: submit â†’ approve via auto-allow policy â†’ lease â†’ checkpoint hook â†’ synthetic callback â†’ completion. Replaying the completed intent executes no callback.
+- Real SDK-to-HTTP smoke workflow: submit → approve via auto-allow policy → lease → checkpoint hook → synthetic callback → completion. Replaying the completed intent executes no callback.
 - Browser sign-in succeeds; an owner cannot approve their own pending request; a separate reviewer can approve it and the queue updates.
 - Runtime Python dependency audit reports no known vulnerabilities. Container OS scanning and independent review are not complete.
 
