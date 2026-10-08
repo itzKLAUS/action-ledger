@@ -226,3 +226,55 @@ def cancel(membership, action_id):
     budget.reserved_cents -= action.cost_cents
     budget.save(update_fields=["reserved_cents"])
     record(workspace, "action.cancelled", membership.user.username, {"action": str(action.pk)})
+
+
+@transaction.atomic
+def reconcile(membership, action_id, *, success, evidence_digest):
+    """Owner records a checked downstream outcome; never execute the action again.
+
+    Charge the full reserved bound even on failure. The evidence digest commits to
+    an independently collected receipt, not proof that this service inspected it.
+    """
+    require(membership, ["owner"])
+    if type(success) is not bool or not isinstance(evidence_digest, str):
+        raise ValidationError("Provide a success boolean and evidence SHA-256 digest")
+    if not DIGEST.fullmatch(evidence_digest):
+        raise ValidationError("Provide a lowercase evidence SHA-256 digest")
+    workspace = Workspace.objects.select_for_update().get(pk=membership.workspace_id)
+    action = Action.objects.get(workspace=workspace, pk=action_id)
+    previous = workspace.auditevent_set.filter(
+        kind="action.reconciled", payload__action=str(action.pk)
+    ).first()
+    if previous:
+        if (
+            previous.payload["success"] == success
+            and previous.payload["evidence_digest"] == evidence_digest
+        ):
+            return action
+        raise ValidationError("Reconciliation conflicts with recorded evidence")
+    if action.status != "leased":
+        raise ValidationError(
+            "Only a leased action with a checked downstream outcome can be reconciled"
+        )
+    action.status = "succeeded" if success else "failed"
+    action.result_digest = evidence_digest
+    # Invalidate the old worker token so a late acknowledgement cannot overwrite evidence.
+    action.lease_digest = ""
+    action.reason = "Downstream outcome reconciled by owner"
+    action.save(update_fields=["status", "result_digest", "lease_digest", "reason"])
+    budget = Budget.objects.get(workspace=workspace)
+    budget.reserved_cents -= action.cost_cents
+    budget.spent_cents += action.cost_cents
+    budget.save(update_fields=["reserved_cents", "spent_cents"])
+    record(
+        workspace,
+        "action.reconciled",
+        membership.user.username,
+        {
+            "action": str(action.pk),
+            "success": success,
+            "evidence_digest": evidence_digest,
+            "charged_cents": action.cost_cents,
+        },
+    )
+    return action

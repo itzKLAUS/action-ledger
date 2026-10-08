@@ -1,5 +1,9 @@
 # Action Ledger
 
+<img src="docs/assets/hero.svg" alt="action-ledger architecture: request, enforcement, and recovery" width="100%">
+
+[![CI](https://github.com/itzKLAUS/action-ledger/actions/workflows/ci.yml/badge.svg)](https://github.com/itzKLAUS/action-ledger/actions/workflows/ci.yml) Â· [MIT](LICENSE) Â· [Release notes](CHANGELOG.md) Â· [Sponsor](https://github.com/sponsors/itzKLAUS)
+
 **A control room for consequential automation.**
 
 Action Ledger sits between a software agent and the tools it can invoke. Before an action runs, it checks an exact operation/destination policy, reserves its declared cost, and requests independent review when required. A service client then obtains one execution lease and records a result digest.
@@ -49,7 +53,7 @@ sequenceDiagram
     Ledger->>Ledger: Charge reserved bound + append audit event
 ```
 
-Read [architecture and trust boundaries](docs/ARCHITECTURE.md), [the API reference](docs/API.md) and [operations](docs/OPERATIONS.md).
+Read [related work](docs/ALTERNATIVES.md), [architecture and trust boundaries](docs/ARCHITECTURE.md), [the API reference](docs/API.md) and [operations](docs/OPERATIONS.md).
 
 ## Verification and maturity
 
@@ -61,4 +65,4 @@ This is an initial production-oriented implementation. It includes tenant-scoped
 make check
 ```
 
-Development used Codex AI assistance. Review and verification details are recorded in `docs/VERIFICATION.md`. Original code remains private until the owner authorizes publication. No open-source license is granted at this stage.
+Development used Codex AI assistance. Review and verification details are recorded in `docs/VERIFICATION.md`. Licensed under [MIT](LICENSE). See [contributing](CONTRIBUTING.md), [support](SUPPORT.md) and [security reporting](SECURITY.md).

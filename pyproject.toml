@@ -1,7 +1,10 @@
 [project]
 name = "action-ledger"
-version = "0.1.0"
+version = "0.2.0"
 description = "Policy, approvals, and execution receipts for automated actions"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = ["Django>=5.2,<5.3", "gunicorn>=23,<24", "psycopg[binary]>=3.2,<4", "whitenoise>=6.9,<7"]
 

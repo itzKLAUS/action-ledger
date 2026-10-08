@@ -1,5 +1,7 @@
-# Security
+# Security reporting
 
-This private repository is an initial implementation, not a certified or independently audited service. Report security concerns privately to the repository owner through the existing private collaboration channel. Do not place secrets or customer records in issues.
+Report suspected vulnerabilities through [GitHub private vulnerability reporting](https://github.com/itzKLAUS/action-ledger/security/advisories/new). Do not post exploit details, signing keys, production grants, live databases, authorization headers or customer payloads in public issues.
 
-Do not deploy with real customer data until the deployment controls in docs/OPERATIONS.md are reviewed. Never use the local demo accounts in production.
+Include a minimal synthetic reproduction, affected version, operating system, trust boundary and expected versus actual behavior. Stop affected dispatch or admission if credentials or ledgers are exposed, and reconcile external effects before restarting.
+
+Version 0.2 is the current public implementation. It is not independently audited or certified. There is no promised patch-response time or paid SLA. Review the operations and verification notes before consequential deployment. Dependencies retain their own security/support lifecycles.

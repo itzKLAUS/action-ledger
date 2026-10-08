@@ -58,4 +58,24 @@ Services append sequence-numbered SHA-256 chains under the workspace row lock. V
 
 ## Development verification
 
-`make check` performs Ruff lint/format checks, migration drift detection, Django checks, tests and coverage. CI runs PostgreSQL and Python 3.12/3.13, with read-only GitHub token permissions and full-SHA action pins. CI is configured, but no remote CI run is claimed until the repository is pushed.
+`make check` performs Ruff lint/format checks, migration drift detection, Django checks, tests and coverage. CI runs PostgreSQL and Python 3.12/3.13, with read-only GitHub token permissions and full-SHA action pins. See GitHub Actions for verification against the current commit.
+
+## Reconcile a stranded execution
+
+First stop the affected worker and collect independent downstream evidence. A timeout alone cannot establish whether the action succeeded. If the outcome is still unknown, keep the reservation and investigate; do not mark failure to reclaim spending capacity.
+
+```sh
+uv run python manage.py reconcile_action WORKSPACE_ID OWNER_USERNAME ACTION_UUID --outcome succeeded --evidence-digest SHA256_OF_VERIFIED_EVIDENCE
+uv run python manage.py verify_audit WORKSPACE_ID
+```
+
+Run these commands only from trusted deployment access. The username identifies an existing owner; it is an audit label, not CLI authentication. The command records an evidence digest, invalidates the old execution token, and charges the entire reserved bound for either outcome. It never invokes an external tool or automatically retries the action. Identical evidence/outcome is idempotent; conflicting evidence is rejected. Preserve the original evidence in independently controlled storage.
+
+Audit JSON exports accept `?format=json&after=0&limit=100`, with `next_after` and `has_more`; the maximum page is 1000. Verification still checks the entire workspace chain and can be expensive on large histories. The export is a live scan, not a snapshot; database owners remain able to rewrite history.
+
+On Windows PowerShell, initialize local development variables with:
+
+```powershell
+$env:APP_DEBUG = "1"
+$env:APP_SECRET_KEY = python -c "import secrets; print(secrets.token_urlsafe(48))"
+```

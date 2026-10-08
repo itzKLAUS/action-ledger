@@ -16,14 +16,26 @@ def audit(request):
     events = AuditEvent.objects.filter(workspace=membership.workspace)
     verification = "valid" if verify(membership.workspace) else "INVALID"
     if request.GET.get("format") == "json":
+        try:
+            after = int(request.GET.get("after", "0"))
+            limit = int(request.GET.get("limit", "100"))
+            if not 0 <= after <= 2**63 - 1 or not 1 <= limit <= 1000:
+                raise ValueError
+        except ValueError:
+            return JsonResponse({"error": "Use after >= 0 and limit from 1 to 1000"}, status=400)
+        page = list(
+            events.filter(sequence__gt=after).values(
+                "sequence", "kind", "actor", "payload", "previous", "digest", "created_at"
+            )[:limit]
+        )
         response = JsonResponse(
             {
                 "verification": verification,
-                "events": list(
-                    events.values(
-                        "sequence", "kind", "actor", "payload", "previous", "digest", "created_at"
-                    )
-                ),
+                "events": page,
+                "next_after": page[-1]["sequence"] if page else after,
+                "has_more": events.filter(
+                    sequence__gt=page[-1]["sequence"] if page else after
+                ).exists(),
             }
         )
         response["Content-Disposition"] = 'attachment; filename="audit.json"'
